@@ -22,6 +22,7 @@ LEGEND:
 - 3 -> Unbreakable Wall
 
 Open the Level Generator Menu
+
 ![LevelGeneratorMenu](https://user-images.githubusercontent.com/18500631/176996185-8264862f-a048-4d70-83b9-d5d9cb2fe61b.jpg)
 
 > The Menu exposes the following parameters:
