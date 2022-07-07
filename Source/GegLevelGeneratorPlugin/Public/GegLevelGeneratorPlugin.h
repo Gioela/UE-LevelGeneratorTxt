@@ -29,6 +29,11 @@ public:
 	void SetLevelDefaultLights(UWorld* InWorld);
 	void ValidateInputStaticMesh();
 
+	UWorld* CreateWorldFromTxt(TArray<FString>* FileRows);
+	//static UWorld* CreateWorldFromTxtS(TArray<FString>* FileRows);
+
+	static FGegLevelGeneratorPluginModule& Get();
+
 public:
 	// TEXT("/Game/Core/Maps/%s/%s");
 	FString PrjPath;

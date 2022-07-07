@@ -9,12 +9,16 @@
 #include "Engine/SkyLight.h"
 #include "Engine/StaticMeshActor.h"
 #include "Factories/WorldFactory.h"
-#include "Materials/MaterialInstance.h"
+#include "Materials/Material.h"
 #include "Misc/FileHelper.h"
 #include "WorkspaceMenuStructureModule.h"
 #include "WorkspaceMenuStructure.h"
 #include "DesktopPlatformModule.h"
 #include "PropertyCustomizationHelpers.h"
+#include "GegSlateInitialization.h"
+#include "Textures/SlateIcon.h"
+
+#include "LevelEditor.h"
 
 #define LOCTEXT_NAMESPACE "FGegLevelGeneratorPluginModule"
 
@@ -22,6 +26,25 @@ static const FName LevelGenerator("Level Generator");
 
 void FGegLevelGeneratorPluginModule::StartupModule()
 {
+	GegSlateInitialization::Initialize();
+	GegSlateInitialization::ReloadTextures();
+
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(LevelGenerator, FOnSpawnTab::CreateRaw(this, &FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab))
+		.SetMenuType(ETabSpawnerMenuType::Hidden);
+
+	TSharedRef<FExtender> ToolBarExtender = MakeShared<FExtender>();
+	ToolBarExtender->AddToolBarExtension("Settings", EExtensionHook::After, nullptr,
+		FToolBarExtensionDelegate::CreateLambda([this](FToolBarBuilder& Builder)
+			{
+				Builder.AddToolBarButton(FUIAction(FExecuteAction::CreateLambda([this]()
+					{
+						FGlobalTabmanager::Get()->InvokeTab(LevelGenerator);
+					})), NAME_None, FText::FromString("MINESWEEPER"));
+			}));
+
+	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolBarExtender);
+
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 
 	AssetThumbnailPool = MakeShareable(new FAssetThumbnailPool(16, false));
@@ -78,8 +101,7 @@ TSharedRef<SDockTab> FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab(c
 							+ SHorizontalBox::Slot().AutoWidth()
 							[
 								SNew(SObjectPropertyEntryBox)
-								.AllowedClass(UMaterialInstance::StaticClass())
-								.AllowedClass(UMaterial::StaticClass())
+								.AllowedClass(UMaterialInterface::StaticClass())
 								.DisplayThumbnail(true).ThumbnailPool(AssetThumbnailPool)
 								.ObjectPath_Lambda([this]() -> FString
 									{
@@ -134,8 +156,7 @@ TSharedRef<SDockTab> FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab(c
 							+ SHorizontalBox::Slot().AutoWidth()
 							[
 								SNew(SObjectPropertyEntryBox)
-								.AllowedClass(UMaterial::StaticClass())
-								.AllowedClass(UMaterialInstance::StaticClass())
+								.AllowedClass(UMaterialInterface::StaticClass())
 								.DisplayThumbnail(true).ThumbnailPool(AssetThumbnailPool)
 								.ObjectPath_Lambda([this]() -> FString
 									{
@@ -189,8 +210,7 @@ TSharedRef<SDockTab> FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab(c
 						+ SHorizontalBox::Slot().AutoWidth()
 						[
 							SNew(SObjectPropertyEntryBox)
-							.AllowedClass(UMaterial::StaticClass())
-							.AllowedClass(UMaterialInstance::StaticClass())
+							.AllowedClass(UMaterialInterface::StaticClass())
 							.DisplayThumbnail(true).ThumbnailPool(AssetThumbnailPool)
 							.ObjectPath_Lambda([this]() -> FString
 								{
@@ -300,63 +320,140 @@ void FGegLevelGeneratorPluginModule::CreateLevelFromTxt(FString InPath)
 
 	if (FileRows.Num() > 0)
 	{
-		UWorldFactory* WorldFactory = NewObject<UWorldFactory>();
-		uint64 SuffixAssetName = FPlatformTime::Cycles64();
-		FString AssetName = FString::Printf(TEXT("Level_%llu"), SuffixAssetName);
-		// FString MapPackage = FString::Printf(TEXT("%s/Maps/"), PrjPath);
-		//UPackage* Package = CreatePackage(*FString::Printf(TEXT("%s/Maps/%s/%s"), *PrjPath, *AssetName, *AssetName));
-		UPackage* Package = CreatePackage(*FString::Printf(TEXT("/Game/GegLevelGenerator/Maps/%s/%s"), *AssetName, *AssetName));
-		//PackageLevel = CreatePackage(*FString::Printf(TEXT("/Game/Core/Maps/%s/%s"), *AssetName, *AssetName));
+		//UWorldFactory* WorldFactory = NewObject<UWorldFactory>();
+		//uint64 SuffixAssetName = FPlatformTime::Cycles64();
+		//FString AssetName = FString::Printf(TEXT("Level_%llu"), SuffixAssetName);
+		//// FString MapPackage = FString::Printf(TEXT("%s/Maps/"), PrjPath);
+		////UPackage* Package = CreatePackage(*FString::Printf(TEXT("%s/Maps/%s/%s"), *PrjPath, *AssetName, *AssetName));
+		//UPackage* Package = CreatePackage(*FString::Printf(TEXT("/Game/GegLevelGenerator/Maps/%s/%s"), *AssetName, *AssetName));
+		////PackageLevel = CreatePackage(*FString::Printf(TEXT("/Game/Core/Maps/%s/%s"), *AssetName, *AssetName));
 
-		UObject* NewLevelObject = WorldFactory->FactoryCreateNew(WorldFactory->SupportedClass, Package, *AssetName, EObjectFlags::RF_Standalone | EObjectFlags::RF_Public, nullptr, GWarn);
-		FAssetRegistryModule::AssetCreated(NewLevelObject);
-		UWorld* WorldCasted = Cast<UWorld>(NewLevelObject);
-		WorldCasted->Modify();
+		//UObject* NewLevelObject = WorldFactory->FactoryCreateNew(WorldFactory->SupportedClass, Package, *AssetName, EObjectFlags::RF_Standalone | EObjectFlags::RF_Public, nullptr, GWarn);
+		//FAssetRegistryModule::AssetCreated(NewLevelObject);
+		//UWorld* WorldCasted = Cast<UWorld>(NewLevelObject);
+		//WorldCasted->Modify();
 
-		SetLevelDefaultLights(WorldCasted);
+		//SetLevelDefaultLights(WorldCasted);
 
-		int32 StartX = 0;
-		int32 StartY = 0;
-		int32 Size = 100;
-		AActor* Floor = nullptr;
-		AActor* WallUnbreakable = nullptr;
-		AActor* WallBreakable = nullptr;
+		//int32 StartX = 0;
+		//int32 StartY = 0;
+		//int32 Size = 100;
+		//AActor* Floor = nullptr;
+		//AActor* WallUnbreakable = nullptr;
+		//AActor* WallBreakable = nullptr;
 
-		uint32 TileNumber = 0;
+		//uint32 TileNumber = 0;
 
-		// Create Default static mesh from the input values
-		ValidateInputStaticMesh();
+		//// Create Default static mesh from the input values
+		//ValidateInputStaticMesh();
 
-		for (FString Line : FileRows)
-		{
-			TArray<FString> BlockInLine;
-			Line.ParseIntoArray(BlockInLine, TEXT(","));
-			for (int32 Index = 0; Index < BlockInLine.Num(); Index++)
-			{
-				Floor = CreateGamePlatform(WorldCasted, StartX * Size, StartY * Size, TileNumber);
-				FAssetRegistryModule::AssetCreated(Floor);
+		//for (FString Line : FileRows)
+		//{
+		//	TArray<FString> BlockInLine;
+		//	Line.ParseIntoArray(BlockInLine, TEXT(","));
+		//	for (int32 Index = 0; Index < BlockInLine.Num(); Index++)
+		//	{
+		//		Floor = CreateGamePlatform(WorldCasted, StartX * Size, StartY * Size, TileNumber);
+		//		FAssetRegistryModule::AssetCreated(Floor);
 
-				if (BlockInLine[Index].Equals(TEXT("3")))
-				{
-					WallUnbreakable = CreateUnbreakableWall(WorldCasted, StartX * Size, StartY * Size, TileNumber);
-					FAssetRegistryModule::AssetCreated(WallUnbreakable);
-				}
-				else if (BlockInLine[Index].Equals(TEXT("2")))
-				{
-					WallBreakable = CreateBreakableWall(WorldCasted, StartX * Size, StartY * Size, TileNumber);
-					FAssetRegistryModule::AssetCreated(WallBreakable);
-				}
-				++StartX;
-				++TileNumber;
-			}
-			++StartY;
-			StartX = 0;
-		}
-		WorldCasted->PostEditChange();
-		WorldCasted->MarkPackageDirty();
-		UE_LOG(LogTemp, Warning, TEXT("New Level created correctly: %s"), *WorldCasted->GetName());
+		//		if (BlockInLine[Index].Equals(TEXT("3")))
+		//		{
+		//			WallUnbreakable = CreateUnbreakableWall(WorldCasted, StartX * Size, StartY * Size, TileNumber);
+		//			FAssetRegistryModule::AssetCreated(WallUnbreakable);
+		//		}
+		//		else if (BlockInLine[Index].Equals(TEXT("2")))
+		//		{
+		//			WallBreakable = CreateBreakableWall(WorldCasted, StartX * Size, StartY * Size, TileNumber);
+		//			FAssetRegistryModule::AssetCreated(WallBreakable);
+		//		}
+		//		++StartX;
+		//		++TileNumber;
+		//	}
+		//	++StartY;
+		//	StartX = 0;
+		//}
+
+		//WorldCasted->PostEditChange();
+		//WorldCasted->MarkPackageDirty();
+		//UE_LOG(LogTemp, Warning, TEXT("New Level created correctly: %s"), *WorldCasted->GetName());
+		
+		UWorld* NewWorld = CreateWorldFromTxt(&FileRows);
+		NewWorld->PostEditChange();
+		NewWorld->MarkPackageDirty();
+		UE_LOG(LogTemp, Warning, TEXT("New Level created correctly: %s"), *NewWorld->GetName());
 	}
 }
+
+UWorld* FGegLevelGeneratorPluginModule::CreateWorldFromTxt(TArray<FString>* FileRows)
+{
+	UWorldFactory* WorldFactory = NewObject<UWorldFactory>();
+	uint64 SuffixAssetName = FPlatformTime::Cycles64();
+	FString AssetName = FString::Printf(TEXT("Level_%llu"), SuffixAssetName);
+	// FString MapPackage = FString::Printf(TEXT("%s/Maps/"), PrjPath);
+	//UPackage* Package = CreatePackage(*FString::Printf(TEXT("%s/Maps/%s/%s"), *PrjPath, *AssetName, *AssetName));
+	UPackage* Package = CreatePackage(*FString::Printf(TEXT("/Game/GegLevelGenerator/Maps/%s/%s"), *AssetName, *AssetName));
+	//PackageLevel = CreatePackage(*FString::Printf(TEXT("/Game/Core/Maps/%s/%s"), *AssetName, *AssetName));
+
+	UObject* NewLevelObject = WorldFactory->FactoryCreateNew(WorldFactory->SupportedClass, Package, *AssetName, EObjectFlags::RF_Standalone | EObjectFlags::RF_Public, nullptr, GWarn);
+	FAssetRegistryModule::AssetCreated(NewLevelObject);
+	UWorld* WorldCasted = Cast<UWorld>(NewLevelObject);
+	WorldCasted->Modify();
+
+	SetLevelDefaultLights(WorldCasted);
+
+	int32 StartX = 0;
+	int32 StartY = 0;
+	int32 Size = 100;
+	AActor* Floor = nullptr;
+	AActor* WallUnbreakable = nullptr;
+	AActor* WallBreakable = nullptr;
+
+	uint32 TileNumber = 0;
+
+	// Create Default static mesh from the input values
+	ValidateInputStaticMesh();
+
+	for (FString Line : *FileRows)
+	{
+		TArray<FString> BlockInLine;
+		Line.ParseIntoArray(BlockInLine, TEXT(","));
+		for (int32 Index = 0; Index < BlockInLine.Num(); Index++)
+		{
+			Floor = CreateGamePlatform(WorldCasted, StartX * Size, StartY * Size, TileNumber);
+			FAssetRegistryModule::AssetCreated(Floor);
+
+			if (BlockInLine[Index].Equals(TEXT("3")))
+			{
+				WallUnbreakable = CreateUnbreakableWall(WorldCasted, StartX * Size, StartY * Size, TileNumber);
+				FAssetRegistryModule::AssetCreated(WallUnbreakable);
+			}
+			else if (BlockInLine[Index].Equals(TEXT("2")))
+			{
+				WallBreakable = CreateBreakableWall(WorldCasted, StartX * Size, StartY * Size, TileNumber);
+				FAssetRegistryModule::AssetCreated(WallBreakable);
+			}
+			++StartX;
+			++TileNumber;
+		}
+		++StartY;
+		StartX = 0;
+	}
+
+	return WorldCasted;
+}
+
+//UWorld* FGegLevelGeneratorPluginModule::CreateWorldFromTxtS(TArray<FString>* FileRows)
+//{
+//	UWorld* NewWorld = FGegLevelGeneratorPluginModule::Get().CreateWorldFromTxt(FileRows);
+//	if (NewWorld)
+//	{
+//		return NewWorld;
+//	}
+//	else
+//	{
+//		return nullptr;
+//	}
+//}
 
 void FGegLevelGeneratorPluginModule::SetLevelDefaultLights(UWorld* InWorld)
 {
@@ -399,6 +496,7 @@ void FGegLevelGeneratorPluginModule::ValidateInputStaticMesh()
 		BreakableWallAsset = LoadObject<UBlueprint>(nullptr, *FString("Blueprint'/GegLevelGeneratorPlugin/GegCore/Blueprints/BP_Wall.BP_Wall'"));
 	}
 }
+
 AActor* FGegLevelGeneratorPluginModule::CreateGamePlatform(UWorld* InWorld, const int32 InPosX, const int32 InPosY, const uint32 TileNum)
 {
 	FName LevelActorPath = TEXT("/Floor");
@@ -450,10 +548,20 @@ AActor* FGegLevelGeneratorPluginModule::CreateBreakableWall(UWorld* InWorld, con
 		AStaticMeshActor* ABreakableWall = InWorld->SpawnActor<AStaticMeshActor>(BPBreakableWall->GeneratedClass, BreakableWallActorParameters);
 		ABreakableWall->SetFolderPath(LevelActorPath);
 		ABreakableWall->SetActorLocation(ActorLocation);
-		ABreakableWall->GetStaticMeshComponent()->SetMaterial(0, Cast<UMaterial>(BreakableWallMaterial.GetAsset()));
+		ABreakableWall->GetStaticMeshComponent()->SetMaterial(0, Cast<UMaterialInterface>(BreakableWallMaterial.GetAsset()));
 		return ABreakableWall;
 	}
 	return nullptr;
+}
+
+FGegLevelGeneratorPluginModule& FGegLevelGeneratorPluginModule::Get()
+{
+	static FGegLevelGeneratorPluginModule* Singleton = nullptr;
+	if (!Singleton)
+	{
+		Singleton = &FModuleManager::LoadModuleChecked<FGegLevelGeneratorPluginModule>("GegLevelGeneratorPluginModule");
+	}
+	return *Singleton;
 }
 
 #undef LOCTEXT_NAMESPACE

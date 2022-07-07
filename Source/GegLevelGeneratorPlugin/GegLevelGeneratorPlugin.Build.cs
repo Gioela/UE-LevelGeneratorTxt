@@ -43,6 +43,8 @@ public class GegLevelGeneratorPlugin : ModuleRules
 				"WorkspaceMenuStructure",
 				"DesktopPlatform",
 				"PropertyEditor",
+				"Projects",
+				// "ToolMenus",
 			}
 			);
 		
