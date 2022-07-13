@@ -14,4 +14,7 @@ class GEGLEVELGENERATORPLUGIN_API AGegWallBasic : public AStaticMeshActor
 {
 	GENERATED_BODY()
 	
+public:
+	UPROPERTY(EditAnywhere, Category = "Properties")
+		bool IsBreakable;
 };

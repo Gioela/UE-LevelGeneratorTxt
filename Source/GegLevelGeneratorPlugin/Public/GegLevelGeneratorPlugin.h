@@ -35,7 +35,6 @@ public:
 	static FGegLevelGeneratorPluginModule& Get();
 
 public:
-	// TEXT("/Game/Core/Maps/%s/%s");
 	FString PrjPath;
 	TSharedPtr<FAssetThumbnailPool> AssetThumbnailPool;
 
