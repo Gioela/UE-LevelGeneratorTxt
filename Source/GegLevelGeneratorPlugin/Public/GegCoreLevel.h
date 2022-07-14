@@ -14,15 +14,16 @@ public:
 	GegCoreLevel();
 	~GegCoreLevel();
 
+	UWorld* GenerateNewWorldFromTxt(const TArray<FString>* FileRows);
+	//void Delete();
+	
+protected:
 	void InitBreakableWallProperties();
 	void InitUnbreakableWallProperties();
 	void InitFloorProperties();
 
-	void ValidateAsset();
-
-	UWorld* GenerateNewWorldFromTxt(const TArray<FString>* FileRows);
+	void ValidateAssets();
 	void SetLevelDefaultLights(UWorld* InWorld);
-	void ValidateInputStaticMesh();
 
 	AActor* CreateGamePlatform(UWorld* InWorld, const int32 InPosX, const int32 InPosY, const uint32 TileNum);
 	AActor* CreateUnbreakableWall(UWorld* InWorld, const int32 InPosX, const int32 InPosY, const uint32 TileNum);

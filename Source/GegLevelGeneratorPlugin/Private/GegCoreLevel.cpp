@@ -18,14 +18,6 @@ FString DefaultBreakableWallAssetPath = TEXT("Blueprint'/GegLevelGeneratorPlugin
 
 GegCoreLevel::GegCoreLevel()
 {
-	//FloorAsset = LoadObject<UStaticMesh>(nullptr, *FString("StaticMesh'/GegLevelGeneratorPlugin/GegCore/Meshes/SM_Floor_1x1.SM_Floor_1x1'"));
-	//UnbreakableWallAsset = LoadObject<UStaticMesh>(nullptr, *FString("StaticMesh'/GegLevelGeneratorPlugin/GegCore/Meshes/SM_Cube_1x1.SM_Cube_1x1'"));
-	//BreakableWallAsset = LoadObject<UBlueprint>(nullptr, *FString("Blueprint'/GegLevelGeneratorPlugin/GegCore/Blueprints/BP_Wall.BP_Wall'"));
-
-	//FloorAsset = LoadObject<UStaticMesh>(nullptr, *DefaultFloorAssetPath);
-	//UnbreakableWallAsset = LoadObject<UStaticMesh>(nullptr, *DefaultUnbreakableWallAssetPath);
-	//BreakableWallAsset = LoadObject<UBlueprint>(nullptr, *DefaultBreakableWallAssetPath);
-
 	InitFloorProperties();
 	InitUnbreakableWallProperties();
 	InitBreakableWallProperties();
@@ -42,6 +34,11 @@ GegCoreLevel::~GegCoreLevel()
 	BreakableWallMaterial = nullptr;
 	BreakableWallAsset = nullptr;
 }
+
+//void GegCoreLevel::Delete()
+//{
+//	~GegCoreLevel();
+//}
 
 void GegCoreLevel::InitFloorProperties()
 {
@@ -61,9 +58,11 @@ void GegCoreLevel::InitBreakableWallProperties()
 	BreakableWallAsset = LoadObject<UBlueprint>(nullptr, *DefaultBreakableWallAssetPath);
 }
 
-void GegCoreLevel::ValidateAsset()
+/*
+* If class assets are not valid, load the default
+*/
+void GegCoreLevel::ValidateAssets()
 {
-	// check if floor static mesh is valid
 	if (!FloorAsset.IsValid())
 	{
 		FloorAsset = LoadObject<UStaticMesh>(nullptr, *DefaultFloorAssetPath);
@@ -79,7 +78,6 @@ void GegCoreLevel::ValidateAsset()
 		BreakableWallAsset = LoadObject<UBlueprint>(nullptr, *DefaultBreakableWallAssetPath);
 	}
 }
-
 
 UWorld* GegCoreLevel::GenerateNewWorldFromTxt(const TArray<FString>* FileRows)
 {
@@ -104,8 +102,7 @@ UWorld* GegCoreLevel::GenerateNewWorldFromTxt(const TArray<FString>* FileRows)
 
 	uint32 TileNumber = 0;
 
-	// Create Default static mesh from the input values
-	ValidateInputStaticMesh();
+	ValidateAssets();
 
 	for (FString Line : *FileRows)
 	{
@@ -136,7 +133,9 @@ UWorld* GegCoreLevel::GenerateNewWorldFromTxt(const TArray<FString>* FileRows)
 	return WorldCasted;
 }
 
-
+/*
+* Set level default lights
+*/
 void GegCoreLevel::SetLevelDefaultLights(UWorld* InWorld)
 {
 	FName LevelLightPath = TEXT("/Lighting");
@@ -160,24 +159,6 @@ void GegCoreLevel::SetLevelDefaultLights(UWorld* InWorld)
 	ExponentialHeightFog->SetFolderPath(LevelLightPath);
 }
 
-void GegCoreLevel::ValidateInputStaticMesh()
-{
-	// check if floor static mesh is valid
-	if (!FloorAsset.IsValid())
-	{
-		FloorAsset = LoadObject<UStaticMesh>(nullptr, *FString("StaticMesh'/GegLevelGeneratorPlugin/GegCore/Meshes/SM_Floor_1x1.SM_Floor_1x1'"));
-	}
-
-	if (!UnbreakableWallAsset.IsValid())
-	{
-		UnbreakableWallAsset = LoadObject<UStaticMesh>(nullptr, *FString("StaticMesh'/GegLevelGeneratorPlugin/GegCore/Meshes/SM_Cube_1x1.SM_Cube_1x1'"));
-	}
-
-	if (!BreakableWallAsset.IsValid())
-	{
-		BreakableWallAsset = LoadObject<UBlueprint>(nullptr, *FString("Blueprint'/GegLevelGeneratorPlugin/GegCore/Blueprints/BP_Wall.BP_Wall'"));
-	}
-}
 
 AActor* GegCoreLevel::CreateGamePlatform(UWorld* InWorld, const int32 InPosX, const int32 InPosY, const uint32 TileNum)
 {
