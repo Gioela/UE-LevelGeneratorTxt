@@ -21,34 +21,15 @@ public:
 	FReply OnClickLoadMapFile();
 	FReply OnClickGenerateMapLevel();
 
-	AActor* CreateGamePlatform(UWorld* InWorld, const int32 InPosX, const int32 InPosY, const uint32 TileNum);
-	AActor* CreateUnbreakableWall(UWorld* InWorld, const int32 InPosX, const int32 InPosY, const uint32 TileNum);
-	AActor* CreateBreakableWall(UWorld* InWorld, const int32 InPosX, const int32 InPosY, const uint32 TileNum);
-
 	void OpenFileManagerMenu(const FString& DialogTitle, const FString& DefaultPath, const FString& FileTypes, TArray<FString>& OutFileNames);
 	void CreateLevelFromTxt(FString InPath);
-	void SetLevelDefaultLights(UWorld* InWorld);
-	void ValidateInputStaticMesh();
-
-	UWorld* CreateWorldFromTxt(TArray<FString>* FileRows);
-	//static UWorld* CreateWorldFromTxtS(TArray<FString>* FileRows);
 
 	static FGegLevelGeneratorPluginModule& Get();
 
 public:
 	GegCoreLevel NewLevel;
-
-	FString PrjPath;
 	TSharedPtr<FAssetThumbnailPool> AssetThumbnailPool;
-
-	FAssetData BreakableWallMaterial;
-	FAssetData BreakableWallAsset;
-
-	FAssetData UnbreakableWallMaterial;
-	FAssetData UnbreakableWallAsset;
-
-	FAssetData FloorMaterial;
-	FAssetData FloorAsset;
-
 	TArray<FString> FileLevelEditor;
+	
+	//FString PrjPath;
 };
