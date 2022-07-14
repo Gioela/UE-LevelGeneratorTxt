@@ -20,7 +20,7 @@ public:
 
 	void ValidateAsset();
 
-	UWorld* CreateLevelFromTxt(const TArray<FString>* FileRows);
+	UWorld* GenerateNewWorldFromTxt(const TArray<FString>* FileRows);
 	void SetLevelDefaultLights(UWorld* InWorld);
 	void ValidateInputStaticMesh();
 

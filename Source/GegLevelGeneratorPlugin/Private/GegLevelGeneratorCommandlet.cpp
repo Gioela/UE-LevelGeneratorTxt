@@ -22,7 +22,7 @@ int32 UGegLevelGeneratorCommandlet::Main(const FString& Params)
 		return 1;
 	}
 
-	UWorld* NewMap = Level.CreateLevelFromTxt(&FileRows);
+	UWorld* NewMap = Level.GenerateNewWorldFromTxt(&FileRows);
 	
 	if (NewMap)
 	{

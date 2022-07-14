@@ -39,7 +39,7 @@ void FGegLevelGeneratorPluginModule::StartupModule()
 				Builder.AddToolBarButton(FUIAction(FExecuteAction::CreateLambda([this]()
 					{
 						FGlobalTabmanager::Get()->InvokeTab(LevelGenerator);
-					})), NAME_None, FText::FromString("MINESWEEPER"));
+					})), NAME_None, FText::FromString("CustomImage"));
 			}));
 
 	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
@@ -52,7 +52,7 @@ void FGegLevelGeneratorPluginModule::StartupModule()
 	FTabSpawnerEntry TabSpawnerEntry = FGlobalTabmanager::Get()->RegisterNomadTabSpawner(LevelGenerator, FOnSpawnTab::CreateRaw(this, &FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab))
 		.SetGroup(WorkspaceMenu::GetMenuStructure().GetDeveloperToolsMiscCategory());
 
-	ValidateInputStaticMesh();
+	//ValidateInputStaticMesh();
 	PrjPath = TEXT("/GegLevelGenerator/Core");
 }
 
@@ -73,6 +73,7 @@ bool FGegLevelGeneratorPluginModule::Exec(UWorld* InWorld, const TCHAR* Cmd, FOu
 	{
 		FString Path = FParse::Token(Cmd, true);
 		CreateLevelFromTxt(*Path);
+		//NewLevel.GenerateNewWorldFromTxt(*Path);
 		return true;
 	}
 	return false;
@@ -105,11 +106,13 @@ TSharedRef<SDockTab> FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab(c
 								.DisplayThumbnail(true).ThumbnailPool(AssetThumbnailPool)
 								.ObjectPath_Lambda([this]() -> FString
 									{
-										return BreakableWallMaterial.GetAsset()->GetPathName();
+										// return BreakableWallMaterial.GetAsset()->GetPathName();
+										return NewLevel.BreakableWallMaterial.GetAsset()->GetPathName();
 									})
 								.OnObjectChanged_Lambda([this](const FAssetData& InNewAssetData) -> void
 									{
-										BreakableWallMaterial = InNewAssetData;
+										//BreakableWallMaterial = InNewAssetData;
+										NewLevel.BreakableWallMaterial = InNewAssetData;
 									})
 							]
 						]
@@ -128,11 +131,12 @@ TSharedRef<SDockTab> FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab(c
 								.DisplayThumbnail(true).ThumbnailPool(AssetThumbnailPool)
 								.ObjectPath_Lambda([this]() -> FString
 									{
-										return BreakableWallAsset.GetAsset()->GetPathName();
+										//return BreakableWallAsset.GetAsset()->GetPathName();
+										return NewLevel.BreakableWallAsset.GetAsset()->GetPathName();
 									})
 								.OnObjectChanged_Lambda([this](const FAssetData& InNewAssetData) -> void
 									{
-										BreakableWallAsset = InNewAssetData;
+										NewLevel.BreakableWallAsset = InNewAssetData;
 									})
 							]
 						]
@@ -160,11 +164,11 @@ TSharedRef<SDockTab> FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab(c
 								.DisplayThumbnail(true).ThumbnailPool(AssetThumbnailPool)
 								.ObjectPath_Lambda([this]() -> FString
 									{
-										return UnbreakableWallMaterial.GetAsset()->GetPathName();
+										return NewLevel.UnbreakableWallMaterial.GetAsset()->GetPathName();
 									})
 								.OnObjectChanged_Lambda([this](const FAssetData& InNewAssetData) -> void
 									{
-										UnbreakableWallMaterial = InNewAssetData;
+										NewLevel.UnbreakableWallMaterial = InNewAssetData;
 									})
 							]
 						]
@@ -183,11 +187,11 @@ TSharedRef<SDockTab> FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab(c
 								.DisplayThumbnail(true).ThumbnailPool(AssetThumbnailPool)
 								.ObjectPath_Lambda([this]() -> FString
 									{
-										return UnbreakableWallAsset.GetAsset()->GetPathName();
+										return NewLevel.UnbreakableWallAsset.GetAsset()->GetPathName();
 									})
 								.OnObjectChanged_Lambda([this](const FAssetData& InNewAssetData) -> void
 									{
-										UnbreakableWallAsset = InNewAssetData;
+										NewLevel.UnbreakableWallAsset = InNewAssetData;
 									})
 							]
 						]
@@ -214,11 +218,11 @@ TSharedRef<SDockTab> FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab(c
 							.DisplayThumbnail(true).ThumbnailPool(AssetThumbnailPool)
 							.ObjectPath_Lambda([this]() -> FString
 								{
-									return FloorMaterial.GetAsset()->GetPathName();
+									return NewLevel.FloorMaterial.GetAsset()->GetPathName();
 								})
 							.OnObjectChanged_Lambda([this](const FAssetData& InNewAssetData) -> void
 								{
-									FloorMaterial = InNewAssetData;
+									NewLevel.FloorMaterial = InNewAssetData;
 								})
 						]
 					]
@@ -237,11 +241,11 @@ TSharedRef<SDockTab> FGegLevelGeneratorPluginModule::CreateMapGeneretorDockTab(c
 						.DisplayThumbnail(true).ThumbnailPool(AssetThumbnailPool)
 						.ObjectPath_Lambda([this]() -> FString
 							{
-								return FloorAsset.GetAsset()->GetPathName();
+								return NewLevel.FloorAsset.GetAsset()->GetPathName();
 							})
 						.OnObjectChanged_Lambda([this](const FAssetData& InNewAssetData) -> void
 							{
-								FloorAsset = InNewAssetData;
+								NewLevel.FloorAsset = InNewAssetData;
 							})
 					]
 				]
@@ -288,6 +292,7 @@ FReply FGegLevelGeneratorPluginModule::OnClickGenerateMapLevel()
 {
 	if (FileLevelEditor.Num() != 0)
 	{
+		//NewLevel.GenerateNewWorldFromTxt(FileLevelEditor[0]);
 		CreateLevelFromTxt(FileLevelEditor[0]);
 
 		FText TitleMsg = FText::FromString("Info");
@@ -377,6 +382,8 @@ void FGegLevelGeneratorPluginModule::CreateLevelFromTxt(FString InPath)
 		//WorldCasted->MarkPackageDirty();
 		//UE_LOG(LogTemp, Warning, TEXT("New Level created correctly: %s"), *WorldCasted->GetName());
 		
+		
+		//UWorld* NewWorld = NewLevel.GenerateNewWorldFromTxt(&FileRows);
 		UWorld* NewWorld = CreateWorldFromTxt(&FileRows);
 		NewWorld->PostEditChange();
 		NewWorld->MarkPackageDirty();

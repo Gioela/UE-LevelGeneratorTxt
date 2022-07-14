@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AssetThumbnail.h"
+#include "GegCoreLevel.h"
 #include "Modules/ModuleManager.h"
 
 class FGegLevelGeneratorPluginModule : public IModuleInterface, public FSelfRegisteringExec
@@ -35,6 +36,8 @@ public:
 	static FGegLevelGeneratorPluginModule& Get();
 
 public:
+	GegCoreLevel NewLevel;
+
 	FString PrjPath;
 	TSharedPtr<FAssetThumbnailPool> AssetThumbnailPool;
 

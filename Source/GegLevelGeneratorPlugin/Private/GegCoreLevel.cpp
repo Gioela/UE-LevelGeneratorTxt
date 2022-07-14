@@ -81,15 +81,12 @@ void GegCoreLevel::ValidateAsset()
 }
 
 
-UWorld* GegCoreLevel::CreateLevelFromTxt(const TArray<FString>* FileRows)
+UWorld* GegCoreLevel::GenerateNewWorldFromTxt(const TArray<FString>* FileRows)
 {
 	UWorldFactory* WorldFactory = NewObject<UWorldFactory>();
 	uint64 SuffixAssetName = FPlatformTime::Cycles64();
 	FString AssetName = FString::Printf(TEXT("Level_%llu"), SuffixAssetName);
-	// FString MapPackage = FString::Printf(TEXT("%s/Maps/"), PrjPath);
-	//UPackage* Package = CreatePackage(*FString::Printf(TEXT("%s/Maps/%s/%s"), *PrjPath, *AssetName, *AssetName));
 	UPackage* Package = CreatePackage(*FString::Printf(TEXT("/Game/GegLevelGenerator/Maps/%s/%s"), *AssetName, *AssetName));
-	//PackageLevel = CreatePackage(*FString::Printf(TEXT("/Game/Core/Maps/%s/%s"), *AssetName, *AssetName));
 
 	UObject* NewLevelObject = WorldFactory->FactoryCreateNew(WorldFactory->SupportedClass, Package, *AssetName, EObjectFlags::RF_Standalone | EObjectFlags::RF_Public, nullptr, GWarn);
 	FAssetRegistryModule::AssetCreated(NewLevelObject);
