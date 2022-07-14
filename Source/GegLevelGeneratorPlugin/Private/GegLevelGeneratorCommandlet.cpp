@@ -18,7 +18,7 @@ int32 UGegLevelGeneratorCommandlet::Main(const FString& Params)
 	TArray<FString> FileRows;
 	if (! FFileHelper::LoadFileToStringArray(FileRows, *Out[1]))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Error in loading file map"));
+		UE_LOG(LogTemp, Error, TEXT("Error in loading file map"));
 		return 1;
 	}
 
